@@ -7,7 +7,8 @@ using MovieAPI.Infrastructure.Persistance;
 namespace MovieAPI.Infrastructure {
     public static class ServiceExtension {
         public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration) {
-            services.AddDbContext<AppDbContext>(opt => {
+            services.AddDbContext<AppDbContext>((serviceProvider, opt) => {
+                //var configuration = serviceProvider.GetRequiredService<IConfiguration>();
                 opt.UseSqlServer(configuration.GetConnectionString("sqlserverdb"));
                 opt.EnableSensitiveDataLogging(true);
                 opt.EnableDetailedErrors();
