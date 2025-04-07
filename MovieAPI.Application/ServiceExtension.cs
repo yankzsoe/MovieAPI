@@ -21,7 +21,7 @@ namespace MovieAPI.Application {
                     cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
                 );
 
-            services.AddTransient<IDateTime, DateTimeService>();
+            services.AddSingleton<IDateTime, DateTimeService>();
         }
     }
 }
