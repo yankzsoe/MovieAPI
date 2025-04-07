@@ -5,14 +5,16 @@ using MovieAPI.Application.Features.Movie.Commands.Create;
 using MovieAPI.Application.Features.Movie.Commands.Update;
 using MovieAPI.Application.Features.Movie.Queries.Get;
 using MovieAPI.Application.Features.Movie.Queries.GetList;
-using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.JsonPatch.Operations;
-using Newtonsoft.Json.Linq;
 using MovieAPI.Application.Features.Movie.Commands.Delete;
+using AutoMapper;
 
 namespace MovieAPI.WebAPI.Controllers {
     [Route("/Movies")]
     public class MoviesController : ApiControllerBase {
+        private readonly IMapper _mapper;
+        public MoviesController(IMapper mapper) {
+            _mapper = mapper;
+        }
 
         [HttpGet("/")]
         public async Task<ActionResult<PagedResponse<List<MovieViewModel>>>> GetListMovie([FromQuery] MovieGetListQuery query) {
@@ -37,15 +39,17 @@ namespace MovieAPI.WebAPI.Controllers {
         }
 
         [HttpPut("/{ID:int}")]
-        public async Task<ActionResult<Response<string>>> UpdateMovie(int ID, [FromBody] CreateUpdateMovie request) {
+        public async Task<ActionResult<Response<MovieViewModel>>> UpdateMovie(int ID, [FromBody] CreateUpdateMovie request) {
+            //var command = new MovieUpdateCommand() {
+            //    Id = ID,
+            //    Title = request.Title,
+            //    Description = request.Description,
+            //    Rating = request.Rating,
+            //    Image = request.Image
+            //};
 
-            var command = new MovieUpdateCommand() {
-                Id = ID,
-                Title = request.Title,
-                Description = request.Description,
-                Rating = request.Rating,
-                Image = request.Image
-            };
+            var command = _mapper.Map<MovieUpdateCommand>(request);
+            command.Id = ID;
 
             return Ok(await Mediator.Send(command));
         }
