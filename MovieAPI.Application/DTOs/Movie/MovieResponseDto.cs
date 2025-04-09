@@ -1,5 +1,5 @@
 ﻿namespace MovieAPI.Application.DTOs.Movie {
-    public class MovieViewModel {
+    public class MovieResponseDto {
         public int Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }

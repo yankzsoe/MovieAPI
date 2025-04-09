@@ -6,7 +6,7 @@ using MovieAPI.Domain.Entities;
 namespace MovieAPI.Application.Mappers {
     public class MovieMappingProfile : Profile {
         public MovieMappingProfile() {
-            CreateMap<Movie, MovieViewModel>().ReverseMap();
+            CreateMap<Movie, MovieResponseDto>().ReverseMap();
                 //.ForMember(d => d.Id, s => s.MapFrom(e => e.Id))
                 //.ForMember(d => d.Title, s => s.MapFrom(e => e.Title))
                 //.ForMember(d => d.Description, s => s.MapFrom(e => e.Description))
@@ -20,7 +20,7 @@ namespace MovieAPI.Application.Mappers {
                 //.ForMember(d => d.CreatedDate, s => s.Ignore())
                 //.ForMember(d => d.UpdatedDate, s => s.Ignore());
 
-            CreateMap<CreateUpdateMovie, Movie>().ReverseMap();
+            CreateMap<CreateUpdateMovieDto, Movie>().ReverseMap();
                 //.ForMember(d => d.Title, s => s.MapFrom(e => e.Title))
                 //.ForMember(d => d.Description, s => s.MapFrom(e => e.Description))
                 //.ForMember(d => d.Rating, s => s.MapFrom(e => e.Rating))

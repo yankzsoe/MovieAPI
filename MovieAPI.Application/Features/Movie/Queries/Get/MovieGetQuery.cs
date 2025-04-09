@@ -5,11 +5,11 @@ using MovieAPI.Application.DTOs.Movie;
 using MovieAPI.Application.Interfaces;
 
 namespace MovieAPI.Application.Features.Movie.Queries.Get {
-    public class MovieGetQuery : IRequest<Response<MovieViewModel>> {
+    public class MovieGetQuery : IRequest<Response<MovieResponseDto>> {
         public int Id { get; set; }
     }
 
-    public class MovieGetQueryHandler : IRequestHandler<MovieGetQuery, Response<MovieViewModel>> {
+    public class MovieGetQueryHandler : IRequestHandler<MovieGetQuery, Response<MovieResponseDto>> {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
@@ -18,11 +18,11 @@ namespace MovieAPI.Application.Features.Movie.Queries.Get {
             _mapper = mapper;
         }
 
-        public async Task<Response<MovieViewModel>> Handle(MovieGetQuery request, CancellationToken cancellationToken) {
+        public async Task<Response<MovieResponseDto>> Handle(MovieGetQuery request, CancellationToken cancellationToken) {
             var data = await _unitOfWork.Movie.GetByIdAsNoTrackingAsync(request.Id);
-            var result = _mapper.Map<MovieViewModel>(data);
-            string message = result is not null ? "List of Movies has been sent succesfully" : "No Movie Found";
-            return new Response<MovieViewModel>(result, message);
+            var result = _mapper.Map<MovieResponseDto>(data);
+            string message = result is not null ? "The data has been sent succesfully" : "No Movie Found";
+            return new Response<MovieResponseDto>(result, message);
         }
     }
 }

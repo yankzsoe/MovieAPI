@@ -1,7 +1,8 @@
 ﻿using FluentValidation;
+using MovieAPI.Application.DTOs.Movie;
 
 namespace MovieAPI.Application.Features.Movie.Commands.Create {
-    public class MovieCreateValidator : AbstractValidator<MovieCreateCommand> {
+    public class MovieCreateValidator : AbstractValidator<CreateUpdateMovieDto> {
         public MovieCreateValidator() {
             RuleFor(m => m.Title)
                 .NotEmpty()

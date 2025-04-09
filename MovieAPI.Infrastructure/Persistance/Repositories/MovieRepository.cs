@@ -65,7 +65,7 @@ namespace MovieAPI.Infrastructure.Persistance.Repositories {
                  .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<Movie> UpdateMovieAsync(int id, MovieViewModel movie) {
+        public async Task<Movie> UpdateMovieAsync(int id, MovieResponseDto movie) {
             var data = new Movie() {
                 Id = id,
                 Title = movie.Title,

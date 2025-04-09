@@ -7,6 +7,6 @@ namespace MovieAPI.Application.Interfaces.Repositories {
         Task<Movie> GetByIdAsNoTrackingAsync(int id);
         Task<(int totalCount, List<Movie> movies)> GetListByTitleAsNoTrackingAsync(string title);
         Task<(int totalCount, List<Movie> movies)> GetListAsNoTrackingAsync(MovieGetListQuery query);
-        Task<Movie> UpdateMovieAsync(int id, MovieViewModel movie);
+        Task<Movie> UpdateMovieAsync(int id, MovieResponseDto movie);
     }
 }

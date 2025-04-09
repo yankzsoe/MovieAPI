@@ -9,47 +9,41 @@ using AutoMapper;
 using MovieAPI.Application.DTOs.Movie;
 
 namespace MovieAPI.WebAPI.Controllers {
-    [Route("/Movies")]
+    [Route("api/[controller]")]
     public class MoviesController : ApiControllerBase {
         private readonly IMapper _mapper;
         public MoviesController(IMapper mapper) {
             _mapper = mapper;
         }
 
-        [HttpGet("/")]
-        public async Task<ActionResult<PagedResponse<List<MovieViewModel>>>> GetListMovie([FromQuery] MovieGetListQuery query) {
+        [HttpGet]
+        public async Task<ActionResult<PagedResponse<List<MovieResponseDto>>>> GetListAsync([FromQuery] MovieGetListQuery query) {
             return Ok(await Mediator.Send(query));
         }
 
-        [HttpGet("/{ID:int}")]
-        public async Task<ActionResult<PagedResponse<List<MovieViewModel>>>> GetMovie(int ID) {
-            var query = new MovieGetQuery { Id = ID };
+        [HttpGet("{id:int}")]
+        [ActionName(nameof(GetByIdAsync))] // handling error when call from CreatedAtAction
+        public async Task<ActionResult<Response<MovieResponseDto>>> GetByIdAsync(int id) {
+            var query = new MovieGetQuery { Id = id };
             return Ok(await Mediator.Send(query));
         }
 
         [HttpPost]
-        public async Task<ActionResult<Response<MovieViewModel>>> CreateMovie(MovieCreateCommand command) {
+        public async Task<ActionResult> CreateAsync(CreateUpdateMovieDto dto) {
+            var result = await Mediator.Send(new MovieCreateCommand(dto));
+            return CreatedAtAction(nameof(GetByIdAsync), new { id = result }, dto);
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult<Response<string>>> DeleteAsync(int id) {
+            var command = new MovieDeleteCommand { Id = id };
             return Ok(await Mediator.Send(command));
         }
 
-        [HttpDelete("/{ID:int}")]
-        public async Task<ActionResult<Response<string>>> DeleteMovie(int ID) {
-            var command = new MovieDeleteCommand { Id = ID };
-            return Ok(await Mediator.Send(command));
-        }
-
-        [HttpPut("/{ID:int}")]
-        public async Task<ActionResult<Response<MovieViewModel>>> UpdateMovie(int ID, [FromBody] CreateUpdateMovie request) {
-            //var command = new MovieUpdateCommand() {
-            //    Id = ID,
-            //    Title = request.Title,
-            //    Description = request.Description,
-            //    Rating = request.Rating,
-            //    Image = request.Image
-            //};
-
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<Response<MovieResponseDto>>> UpdateAsync(int id, [FromBody] CreateUpdateMovieDto request) {
             var command = _mapper.Map<MovieUpdateCommand>(request);
-            command.Id = ID;
+            command.Id = id;
 
             return Ok(await Mediator.Send(command));
         }

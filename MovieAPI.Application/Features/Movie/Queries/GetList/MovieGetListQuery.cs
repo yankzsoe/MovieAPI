@@ -6,7 +6,7 @@ using MovieAPI.Application.DTOs.Movie;
 using MovieAPI.Application.Interfaces;
 
 namespace MovieAPI.Application.Features.Movie.Queries.GetList {
-    public class MovieGetListQuery : PagedQuery, IRequest<PagedResponse<List<MovieViewModel>>> {
+    public class MovieGetListQuery : PagedQuery, IRequest<PagedResponse<List<MovieResponseDto>>> {
         /// <summary>
         /// Search by: Title
         /// </summary>
@@ -23,7 +23,7 @@ namespace MovieAPI.Application.Features.Movie.Queries.GetList {
         public new SortBy SortBy { get; set; } = SortBy.Asc;
     }
 
-    public class MovieGetListQueryHandler : IRequestHandler<MovieGetListQuery, PagedResponse<List<MovieViewModel>>> {
+    public class MovieGetListQueryHandler : IRequestHandler<MovieGetListQuery, PagedResponse<List<MovieResponseDto>>> {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
@@ -32,13 +32,13 @@ namespace MovieAPI.Application.Features.Movie.Queries.GetList {
             _mapper = mapper;
         }
 
-        public async Task<PagedResponse<List<MovieViewModel>>> Handle(MovieGetListQuery request, CancellationToken cancellationToken) {
+        public async Task<PagedResponse<List<MovieResponseDto>>> Handle(MovieGetListQuery request, CancellationToken cancellationToken) {
             var (totalCount, list) = await _unitOfWork.Movie.GetListAsNoTrackingAsync(request);
 
             string message = totalCount > 0 ? "List of Movies has been sent succesfully" : "No Movie Found";
-            var result = _mapper.Map<List<MovieViewModel>>(list);
+            var result = _mapper.Map<List<MovieResponseDto>>(list);
 
-            return new PagedResponse<List<MovieViewModel>>(result, totalCount, request.PageSize, request.PageNumber, message);
+            return new PagedResponse<List<MovieResponseDto>>(result, totalCount, request.PageSize, request.PageNumber, message);
         }
     }
 }
