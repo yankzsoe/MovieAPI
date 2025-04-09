@@ -9,7 +9,7 @@ using MovieAPI.Application.Services;
 
 namespace MovieAPI.Application {
     public static class ServiceExtension {
-        public static void ApplicationServiceRegistration(this IServiceCollection services, IConfiguration configuration) {
+        public static void AddApplicationServiceRegistration(this IServiceCollection services, IConfiguration configuration) {
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));

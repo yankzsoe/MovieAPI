@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using MediatR;
 using MovieAPI.Application.Common.Exceptions;
-using MovieAPI.Application.Common.Models;
 using MovieAPI.Application.Common.Models.Responses;
+using MovieAPI.Application.DTOs.Movie;
 using MovieAPI.Application.Interfaces;
 
 namespace MovieAPI.Application.Features.Movie.Commands.Update {

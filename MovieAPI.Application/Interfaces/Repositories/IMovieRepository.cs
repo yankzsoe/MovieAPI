@@ -1,4 +1,4 @@
-﻿using MovieAPI.Application.Common.Models;
+﻿using MovieAPI.Application.DTOs.Movie;
 using MovieAPI.Application.Features.Movie.Queries.GetList;
 using MovieAPI.Domain.Entities;
 

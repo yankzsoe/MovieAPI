@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MovieAPI.Application.Common.Models;
 using MovieAPI.Application.Common.Models.Enums;
+using MovieAPI.Application.DTOs.Movie;
 using MovieAPI.Application.Features.Movie.Queries.GetList;
 using MovieAPI.Application.Interfaces;
 using MovieAPI.Application.Interfaces.Repositories;

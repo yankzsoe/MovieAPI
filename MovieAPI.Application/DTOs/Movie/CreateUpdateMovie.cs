@@ -1,4 +1,4 @@
-﻿namespace MovieAPI.Application.Common.Models {
+﻿namespace MovieAPI.Application.DTOs.Movie {
     public class CreateUpdateMovie {
         public string Title { get; set; }
         public string Description { get; set; }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MovieAPI.Application.Common.Models;
 using MovieAPI.Application.Common.Models.Responses;
 using MovieAPI.Application.Features.Movie.Commands.Create;
 using MovieAPI.Application.Features.Movie.Commands.Update;
@@ -7,6 +6,7 @@ using MovieAPI.Application.Features.Movie.Queries.Get;
 using MovieAPI.Application.Features.Movie.Queries.GetList;
 using MovieAPI.Application.Features.Movie.Commands.Delete;
 using AutoMapper;
+using MovieAPI.Application.DTOs.Movie;
 
 namespace MovieAPI.WebAPI.Controllers {
     [Route("/Movies")]
