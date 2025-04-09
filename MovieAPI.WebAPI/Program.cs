@@ -10,8 +10,8 @@ namespace MovieAPI.WebAPI {
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddApplication(builder.Configuration);
-            builder.Services.AddInfrastructure(builder.Configuration);
+            builder.Services.ApplicationServiceRegistration(builder.Configuration);
+            builder.Services.InfrastructureServiceRegistration(builder.Configuration);
 
             builder.Services.AddControllers().AddNewtonsoftJson()
                 .AddJsonOptions(options =>

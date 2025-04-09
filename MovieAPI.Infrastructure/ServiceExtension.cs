@@ -6,7 +6,7 @@ using MovieAPI.Infrastructure.Persistance;
 
 namespace MovieAPI.Infrastructure {
     public static class ServiceExtension {
-        public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration) {
+        public static void InfrastructureServiceRegistration(this IServiceCollection services, IConfiguration configuration) {
             services.AddDbContext<AppDbContext>((serviceProvider, opt) => {
                 //var configuration = serviceProvider.GetRequiredService<IConfiguration>();
                 opt.UseSqlServer(configuration.GetConnectionString("sqlserverdb"));
