@@ -16,7 +16,23 @@ namespace MovieAPI.Infrastructure {
                 opt.EnableDetailedErrors();
             });
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole>(options => {
+                // Konfigurasi password
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false; // Contoh: !@#$
+                options.Password.RequiredLength = 8;
+                options.Password.RequiredUniqueChars = 1;
+
+                // Konfigurasi lockout (opsional)
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // Konfigurasi user
+                options.User.RequireUniqueEmail = true;
+            })
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
 
