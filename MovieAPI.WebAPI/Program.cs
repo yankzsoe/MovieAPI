@@ -25,6 +25,7 @@ namespace MovieAPI.WebAPI {
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
+            app.UseMiddleware<ErrorHandler>();
 
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
@@ -36,9 +37,7 @@ namespace MovieAPI.WebAPI {
             }
 
             app.UseHttpsRedirection();
-            app.UseMiddleware<ErrorHandler>();
             app.UseAuthorization();
-
 
             app.MapControllers();
 

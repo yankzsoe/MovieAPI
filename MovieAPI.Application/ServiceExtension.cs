@@ -6,16 +6,28 @@ using System.Reflection;
 using MovieAPI.Application.Common.Behaviours;
 using MovieAPI.Application.Interfaces;
 using MovieAPI.Application.Services;
+using FluentValidation.AspNetCore;
 
 namespace MovieAPI.Application {
     public static class ServiceExtension {
         public static void AddApplicationServiceRegistration(this IServiceCollection services, IConfiguration configuration) {
+            // Add FluentValidation
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+            services.AddFluentValidationAutoValidation();
+            //services.AddValidatorsFromAssembly(typeof(MovieCreateValidator).Assembly);
 
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
+            // Add Middleware
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
+
+            //services.Configure<ApiBehaviorOptions>(options => {
+            //    options.SuppressModelStateInvalidFilter = true;
+            //});
+
+
+            // Add AutoMapper and MediatR
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddMediatR(cfg =>
                     cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
