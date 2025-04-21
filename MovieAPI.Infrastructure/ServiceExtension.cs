@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MovieAPI.Application.Interfaces;
+using MovieAPI.Domain.Entities;
 using MovieAPI.Infrastructure.Persistance;
 
 namespace MovieAPI.Infrastructure {
@@ -13,6 +15,10 @@ namespace MovieAPI.Infrastructure {
                 opt.EnableSensitiveDataLogging(true);
                 opt.EnableDetailedErrors();
             });
+
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }

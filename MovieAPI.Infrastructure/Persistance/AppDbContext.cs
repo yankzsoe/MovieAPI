@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using MovieAPI.Application.Interfaces;
@@ -7,7 +8,7 @@ using MovieAPI.Domain.Entities;
 using MovieAPI.Infrastructure.Persistance.Configurations;
 
 namespace MovieAPI.Infrastructure.Persistance {
-    public class AppDbContext : DbContext {
+    public class AppDbContext : IdentityDbContext<ApplicationUser> {
         private readonly IDateTime _dateTime;
         protected readonly IConfiguration _Configuration;
         public AppDbContext(DbContextOptions options, IDateTime dateTime, IConfiguration configuration) : base(options) {
@@ -18,13 +19,14 @@ namespace MovieAPI.Infrastructure.Persistance {
         public virtual DbSet<Movie> Movies { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-            //optionsBuilder.UseNpgsql(_Configuration.GetConnectionString("postgresdb"));
-            optionsBuilder.UseSqlServer(_Configuration.GetConnectionString("sqlserverdb"));
+            // optionsBuilder.UseNpgsql(_Configuration.GetConnectionString("postgresdb"));
+            optionsBuilder.UseSqlServer(_Configuration.GetConnectionString("sqlserverdb"), opt => opt.EnableRetryOnFailure());
             base.OnConfiguring(optionsBuilder);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder.ApplyConfiguration(new MovieConfiguration());
+            base.OnModelCreating(modelBuilder);
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) {
