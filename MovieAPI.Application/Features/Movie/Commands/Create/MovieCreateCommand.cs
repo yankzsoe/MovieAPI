@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
-using MovieAPI.Application.Common.Models.Responses;
+using MovieAPI.Application.Common.Exceptions;
 using MovieAPI.Application.DTOs.Movie;
 using MovieAPI.Application.Interfaces;
 
@@ -23,6 +23,11 @@ namespace MovieAPI.Application.Features.Movie.Commands.Create {
         }
 
         public async Task<int> Handle(MovieCreateCommand request, CancellationToken cancellationToken) {
+            var validator = new MovieCreateValidator();
+            var validationResult = await validator.ValidateAsync(request.MovieDto, cancellationToken);
+            if (!validationResult.IsValid) {
+                throw new ValidationException(validationResult.Errors);
+            }
             var movie = _mapper.Map<Domain.Entities.Movie>(request.MovieDto);
             await _unitOfWork.Movie.AddAsync(movie);
             await _unitOfWork.CompleteAsync();

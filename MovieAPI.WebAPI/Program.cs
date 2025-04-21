@@ -25,6 +25,7 @@ namespace MovieAPI.WebAPI {
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
+            app.UseRouting();
             app.UseMiddleware<ErrorHandler>();
 
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
