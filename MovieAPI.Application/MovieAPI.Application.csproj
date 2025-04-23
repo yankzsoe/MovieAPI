@@ -13,10 +13,16 @@
 	  <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
 	  <PackageReference Include="MediatR" Version="12.5.0" />
 	  <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.4" />
+	  <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.8.0" />
+	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.8.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\MovieAPI.Domain\MovieAPI.Domain.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Features\User\Commands\Login\" />
 	</ItemGroup>
 
 </Project>

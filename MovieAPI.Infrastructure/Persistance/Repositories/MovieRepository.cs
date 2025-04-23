@@ -18,7 +18,8 @@ namespace MovieAPI.Infrastructure.Persistance.Repositories {
 
         public async Task<(int totalCount, List<Movie> movies)> GetListAsNoTrackingAsync(MovieGetListQuery query) {
             IQueryable<Movie> data = AppDbContext.Movies
-                .Where(e => e.Title.ToLower().Contains(query.Keyword.ToLower()));
+                .Where(e => e.Title.ToLower().Contains(query.Keyword.ToLower()) ||
+                    e.Description.ToLower().Contains(query.Keyword.ToLower()));
 
             if (query.MovieGetListOrderBy == MovieGetListOrderBy.Id) {
                 if (query.SortBy == SortBy.Asc) {

@@ -1,4 +1,5 @@
 ﻿using FluentValidation.Results;
+using Microsoft.AspNetCore.Identity;
 
 namespace MovieAPI.Application.Common.Exceptions {
     public class ValidationException : Exception {
@@ -9,6 +10,12 @@ namespace MovieAPI.Application.Common.Exceptions {
         public ValidationException(IEnumerable<ValidationFailure> failures) : this() {
             foreach (var failure in failures) {
                 Errors.Add(failure.ErrorMessage);
+            }
+        }
+
+        public ValidationException(IEnumerable<IdentityError> errors) : this() {
+            foreach (var error in errors) {
+                Errors.Add(error.Description);
             }
         }
 

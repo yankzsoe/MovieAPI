@@ -47,10 +47,14 @@ namespace MovieAPI.WebAPI.Middlewares {
                         // unhandled error
                         response.StatusCode = (int)HttpStatusCode.InternalServerError;
                         responseModel.Message = "An error occurred while processing your request.";
-                        responseModel.Errors = new List<string>() { error.Message };
+                        if(error.InnerException is not null) {
+                            responseModel.Errors = new List<string>() { error.Message, error.InnerException.Message };
+                        } else {
+                            responseModel.Errors = new List<string>() { error.Message};
+                        }
 
-                        //  only log internal server error
-                        _logger.LogError("Unhandled exception: {errorMessage}", error.Message);
+                            //  only log internal server error
+                            _logger.LogError("Unhandled exception: {errorMessage}", error.Message);
 
                         break;
                 }
