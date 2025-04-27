@@ -34,43 +34,50 @@ namespace MovieAPI.Tests.Movie.Commands.Update {
                 Image = "old_image.jpg"
             };
 
-            var updateCommand = new MovieUpdateCommand {
-                Id = movieId,
+            var movieDto = new CreateUpdateMovieDto {
                 Title = "New Title",
                 Description = "New Description",
                 Rating = 4.5f,
-                Image = "new_image.jpg"
+                Image = "updated_image.jpg"
             };
 
-            var updatedMovieResponse = new MovieResponseDto {
+            var updatedMovie = new MovieResponseDto {
                 Id = movieId,
-                Title = updateCommand.Title,
-                Description = updateCommand.Description,
-                Rating = updateCommand.Rating,
-                Image = updateCommand.Image
+                Title = movieDto.Title,
+                Description = movieDto.Description,
+                Rating = movieDto.Rating,
+                Image = movieDto.Image
             };
+
+            var command = new MovieUpdateCommand(movieDto) { Id = movieId };
 
             _mockUnitOfWork.Setup(u => u.Movie.GetAsync(movieId))
                 .ReturnsAsync(existingMovie);
-            _mockUnitOfWork.Setup(u => u.CompleteAsync())
-                .Returns(Task.FromResult(1));
+            _mockUnitOfWork.Setup(u => u.Movie.UpdateMovieAsync(movieId, movieDto))
+                .ReturnsAsync(new Domain.Entities.Movie {
+                    Id = movieId,
+                    Title = movieDto.Title,
+                    Description = movieDto.Description,
+                    Rating = movieDto.Rating,
+                    Image = movieDto.Image
+                });
             _mockMapper.Setup(m => m.Map<MovieResponseDto>(It.IsAny<Domain.Entities.Movie>()))
-                .Returns(updatedMovieResponse);
+                .Returns(updatedMovie);
 
             // Act
-            var result = await _handler.Handle(updateCommand, CancellationToken.None);
+            var result = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
             Assert.True(result.Succeeded);
             Assert.Equal("Movie Updated Successfully", result.Message);
-            Assert.Equal(updateCommand.Title, result.Data.Title);
-            Assert.Equal(updateCommand.Description, result.Data.Description);
-            Assert.Equal(updateCommand.Rating, result.Data.Rating);
-            Assert.Equal(updateCommand.Image, result.Data.Image);
+            Assert.Equal(movieDto.Title, result.Data.Title);
+            Assert.Equal(movieDto.Description, result.Data.Description);
+            Assert.Equal(movieDto.Rating, result.Data.Rating);
+            Assert.Equal(movieDto.Image, result.Data.Image);
 
             _mockUnitOfWork.Verify(u => u.Movie.GetAsync(movieId), Times.Once);
-            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Once);
+            _mockUnitOfWork.Verify(u => u.Movie.UpdateMovieAsync(movieId, movieDto), Times.Once);
             _mockMapper.Verify(m => m.Map<MovieResponseDto>(It.Is<Domain.Entities.Movie>(m => m.Id == movieId)), Times.Once);
         }
 
@@ -78,22 +85,45 @@ namespace MovieAPI.Tests.Movie.Commands.Update {
         public async Task Handle_NonExistingMovie_ShouldThrowNotFoundException() {
             // Arrange
             var movieId = 99;
-            var updateCommand = new MovieUpdateCommand {
-                Id = movieId,
-                Title = "Doesn't Matter",
-                Description = "Doesn't Matter",
+            var movieDto = new CreateUpdateMovieDto {
+                Title = "no movie",
+                Description = "no movie",
                 Rating = 0,
                 Image = "none.jpg"
             };
+
+            var command = new MovieUpdateCommand(movieDto) { Id = movieId };
 
             _mockUnitOfWork.Setup(u => u.Movie.GetAsync(movieId))
                 .ReturnsAsync((Domain.Entities.Movie)null); // Simulasi movie tidak ditemukan
 
             // Act & Assert
-            await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(updateCommand, CancellationToken.None));
+            await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
 
             _mockUnitOfWork.Verify(u => u.Movie.GetAsync(movieId), Times.Once);
-            _mockUnitOfWork.Verify(u => u.CompleteAsync(), Times.Never);
+            _mockUnitOfWork.Verify(u => u.Movie.UpdateMovieAsync(It.IsAny<int>(), It.IsAny<CreateUpdateMovieDto>()), Times.Never);
+            _mockMapper.Verify(m => m.Map<MovieResponseDto>(It.IsAny<Domain.Entities.Movie>()), Times.Never);
+        }
+
+
+        [Fact]
+        public async Task Handle_InvalidRequest_ShouldThrowValidationException() {
+            // Arrange
+            var movieId = 1;
+            var invalidMovieDto = new CreateUpdateMovieDto {
+                Title = "", // Invalid
+                Description = "", // Invalid
+                Rating = 0f,
+                Image = "some-image.jpg"
+            };
+
+            var command = new MovieUpdateCommand(invalidMovieDto) { Id = 0 }; // Id kosong = invalid
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(command, CancellationToken.None));
+
+            _mockUnitOfWork.Verify(u => u.Movie.GetAsync(It.IsAny<int>()), Times.Never);
+            _mockUnitOfWork.Verify(u => u.Movie.UpdateMovieAsync(It.IsAny<int>(), It.IsAny<CreateUpdateMovieDto>()), Times.Never);
             _mockMapper.Verify(m => m.Map<MovieResponseDto>(It.IsAny<Domain.Entities.Movie>()), Times.Never);
         }
     }

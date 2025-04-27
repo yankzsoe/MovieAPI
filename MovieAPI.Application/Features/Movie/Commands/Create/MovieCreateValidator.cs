@@ -7,11 +7,11 @@ namespace MovieAPI.Application.Features.Movie.Commands.Create {
         public MovieCreateValidator() {
             RuleFor(m => m.Title)
                 .NotEmpty()
-                .WithMessage("Tite is requred");
+                .WithMessage("Title is required");
 
             RuleFor(m => m.Description)
                 .NotEmpty()
-                .WithMessage("Description is requred");
+                .WithMessage("Description is required");
         }
 
         public async Task<ValidationResult> ValidateRequest(CreateUpdateMovieDto dto) {

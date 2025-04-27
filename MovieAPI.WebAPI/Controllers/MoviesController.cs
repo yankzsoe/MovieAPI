@@ -42,7 +42,7 @@ namespace MovieAPI.WebAPI.Controllers {
 
         [HttpPut("{id:int}")]
         public async Task<ActionResult<Response<MovieResponseDto>>> UpdateAsync(int id, [FromBody] CreateUpdateMovieDto request) {
-            var command = _mapper.Map<MovieUpdateCommand>(request);
+            var command = new MovieUpdateCommand(request);
             command.Id = id;
 
             return Ok(await Mediator.Send(command));

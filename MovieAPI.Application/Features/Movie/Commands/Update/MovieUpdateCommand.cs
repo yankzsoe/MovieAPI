@@ -3,15 +3,17 @@ using MediatR;
 using MovieAPI.Application.Common.Exceptions;
 using MovieAPI.Application.Common.Models.Responses;
 using MovieAPI.Application.DTOs.Movie;
+using MovieAPI.Application.Features.Movie.Commands.Create;
 using MovieAPI.Application.Interfaces;
 
 namespace MovieAPI.Application.Features.Movie.Commands.Update {
     public class MovieUpdateCommand : IRequest<Response<MovieResponseDto>> {
         public int Id { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public float Rating { get; set; }
-        public string Image { get; set; }
+        public CreateUpdateMovieDto MovieDto { get; set; }
+
+        public MovieUpdateCommand(CreateUpdateMovieDto movieDto) {
+            MovieDto = movieDto;
+        }
     }
 
     public class MovieUpdateCommandHandler : IRequestHandler<MovieUpdateCommand, Response<MovieResponseDto>> {
@@ -24,18 +26,16 @@ namespace MovieAPI.Application.Features.Movie.Commands.Update {
         }
 
         public async Task<Response<MovieResponseDto>> Handle(MovieUpdateCommand request, CancellationToken cancellationToken) {
-            var data = await _unitOfWork.Movie.GetAsync(request.Id);
+            var validator = new MovieUpdateValidator();
+            await validator.ValidateRequest(request.Id, request.MovieDto);
+
+            var data = await _unitOfWork.Movie.GetByIdAsNoTrackingAsync(request.Id);
             if (data == null) {
                 throw new NotFoundException($"Movie with ID: {request.Id} is Not Found");
             }
 
-            data.Title = request.Title;
-            data.Description = request.Description;
-            data.Rating = request.Rating;
-            data.Image = request.Image;
-
-            await _unitOfWork.CompleteAsync();
-            var response = _mapper.Map<MovieResponseDto>(data);
+            var result = await _unitOfWork.Movie.UpdateMovieAsync(request.Id, request.MovieDto);
+            var response = _mapper.Map<MovieResponseDto>(result);
 
             return new Response<MovieResponseDto>(response, "Movie Updated Successfully");
         }

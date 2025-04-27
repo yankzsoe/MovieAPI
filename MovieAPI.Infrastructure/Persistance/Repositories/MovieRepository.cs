@@ -7,7 +7,7 @@ using MovieAPI.Application.Interfaces.Repositories;
 using MovieAPI.Domain.Entities;
 
 namespace MovieAPI.Infrastructure.Persistance.Repositories {
-    public class MovieRepository : GenericRepository<MovieRepository>, IMovieRepository {
+    public class MovieRepository : GenericRepository<Movie>, IMovieRepository {
         public MovieRepository(AppDbContext context) : base(context) { }
 
         public AppDbContext AppDbContext {
@@ -23,25 +23,25 @@ namespace MovieAPI.Infrastructure.Persistance.Repositories {
 
             if (query.MovieGetListOrderBy == MovieGetListOrderBy.Id) {
                 if (query.SortBy == SortBy.Asc) {
-                    data.OrderBy(e => e.Id);
+                    data = data.OrderBy(e => e.Id);
                 } else {
-                    data.OrderByDescending(e => e.Id);
+                    data = data.OrderByDescending(e => e.Id);
                 }
             }
 
             if (query.MovieGetListOrderBy == MovieGetListOrderBy.Title) {
                 if (query.SortBy == SortBy.Asc) {
-                    data.OrderBy(e => e.Title);
+                    data = data.OrderBy(e => e.Title);
                 } else {
-                    data.OrderByDescending(e => e.Title);
+                    data = data.OrderByDescending(e => e.Title);
                 }
             }
 
             if (query.MovieGetListOrderBy == MovieGetListOrderBy.CreatedDate) {
                 if (query.SortBy == SortBy.Asc) {
-                    data.OrderBy(e => e.CreatedDate);
+                    data = data.OrderBy(e => e.CreatedDate);
                 } else {
-                    data.OrderByDescending(e => e.CreatedDate);
+                    data = data.OrderByDescending(e => e.CreatedDate);
                 }
             }
 
@@ -56,17 +56,13 @@ namespace MovieAPI.Infrastructure.Persistance.Repositories {
             return (totalCount, list);
         }
 
-        public Task<(int totalCount, List<Movie> movies)> GetListByTitleAsNoTrackingAsync(string title) {
-            throw new NotImplementedException();
-        }
-
         public async Task<Movie> GetByIdAsNoTrackingAsync(int id) {
             return await AppDbContext.Movies
                  .AsNoTracking()
                  .FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<Movie> UpdateMovieAsync(int id, MovieResponseDto movie) {
+        public async Task<Movie> UpdateMovieAsync(int id, CreateUpdateMovieDto movie) {
             var data = new Movie() {
                 Id = id,
                 Title = movie.Title,

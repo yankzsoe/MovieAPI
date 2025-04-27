@@ -14,8 +14,8 @@ namespace MovieAPI.WebAPI {
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddApplicationServiceRegistration(builder.Configuration);
             builder.Services.AddInfrastructureServiceRegistration(builder.Configuration);
+            builder.Services.AddApplicationServiceRegistration(builder.Configuration);
 
             builder.Services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
