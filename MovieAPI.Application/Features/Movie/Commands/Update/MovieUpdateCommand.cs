@@ -26,7 +26,7 @@ namespace MovieAPI.Application.Features.Movie.Commands.Update {
         public async Task<Response<MovieResponseDto>> Handle(MovieUpdateCommand request, CancellationToken cancellationToken) {
             var data = await _unitOfWork.Movie.GetAsync(request.Id);
             if (data == null) {
-                throw new NotFoundException($"Movie with ID: {request.Id} Not Found");
+                throw new NotFoundException($"Movie with ID: {request.Id} is Not Found");
             }
 
             data.Title = request.Title;
