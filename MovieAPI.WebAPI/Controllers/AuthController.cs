@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.IdentityModel.Tokens;
+using MovieAPI.Application.Common.Models.Responses;
 using MovieAPI.Application.DTOs.Auth;
+using MovieAPI.Application.Features.Auth.Commands;
 using MovieAPI.Domain.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -22,103 +25,27 @@ namespace MovieAPI.WebAPI.Controllers {
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto model) {
-            var user = new ApplicationUser {
-                UserName = model.UserName,
-                Email = model.Email
-            };
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (result.Succeeded) {
-                return Ok(new { message = "User registered successfully" });
-            }
-            return BadRequest(result.Errors);
+        public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterDto model) {
+            var result = new ResgisterCommand(model);
+            return Ok(await Mediator.Send(result));
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto loginDto) {
-            var user = await _userManager.FindByEmailAsync(loginDto.Email);
-            if (user == null)
-                return Unauthorized("Invalid email or password");
-
-            var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
-            if (!result.Succeeded)
-                return Unauthorized("Invalid email or password");
-
-            // Generate JWT Token
-            var token = GenerateJwtToken(user);
-            return Ok(new { token });
-        }
-
-        private string GenerateJwtToken(ApplicationUser user) {
-            var claims = new[]
-            {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Email, user.Email)
-        };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
+        public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginDto model) {
+            var result = new LoginCommand(model);
+            return Ok(await Mediator.Send(result));
         }
 
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto model) {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user))) {
-                // Jangan beri tahu apakah user tidak ditemukan atau email belum dikonfirmasi
-                return Ok(new { message = "If your email is registered, you will receive reset instructions shortly." });
-            }
-
-            // Generate reset token
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-
-            // Encode token ke URL-safe format
-            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-
-            // Buat link reset password (harus pointing ke frontend-mu nanti)
-            var resetLink = Url.Action(
-                action: "ResetPassword",
-                controller: "Auth",
-                values: new { email = user.Email, token = encodedToken },
-                protocol: Request.Scheme);
-
-            // Untuk demo: kita return link-nya langsung, production seharusnya kirim via email
-            return Ok(new { message = "Reset password link generated.", resetLink });
+        public async Task<ActionResult<Response<string>>> ForgotPassword([FromBody] ForgotPasswordDto model) {
+            var result = new ForgotPasswordCommand(model);
+            return Ok(await Mediator.Send(result));
         }
 
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto model) {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (model.NewPassword != model.ConfirmPassword)
-                return BadRequest(new { message = "Passwords do not match." });
-
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null)
-                return BadRequest(new { message = "Invalid request." });
-
-            var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(model.Token));
-            var result = await _userManager.ResetPasswordAsync(user, decodedToken, model.NewPassword);
-
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
-
-            return Ok(new { message = "Password has been reset successfully." });
+        public async Task<ActionResult<Response<string>>> ResetPassword([FromBody] ResetPasswordDto model) {
+            var result = new ResetPasswordCommand(model);
+            return Ok(await Mediator.Send(result));
         }
 
     }

@@ -9,10 +9,13 @@ using MovieAPI.Application.Services;
 using FluentValidation.AspNetCore;
 using MovieAPI.Application.Features.Movie.Commands.Create;
 using Microsoft.AspNetCore.Mvc;
+using MovieAPI.Application.Common.Models.Configuration;
 
 namespace MovieAPI.Application {
     public static class ServiceExtension {
         public static void AddApplicationServiceRegistration(this IServiceCollection services, IConfiguration configuration) {
+            services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+
             // Add FluentValidation
             //services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             services.AddFluentValidationAutoValidation();
@@ -27,6 +30,7 @@ namespace MovieAPI.Application {
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
 
+            services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IAuthService, AuthService>();
 
             // Disable default model state validation

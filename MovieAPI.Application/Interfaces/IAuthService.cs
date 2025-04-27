@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace MovieAPI.Application.Interfaces {
     public interface IAuthService {
-        Task RegisterAsync(RegisterDto dto);
-        Task<string> LoginAsync(string email, string password);
-        string RefreshTokenAsync(ApplicationUser user);
-        Task<string> ForgotPasswordAsync(string email);
-        Task<bool> ResetPasswordAsync(string email, string token, string newPassword);
+        Task<(string token, DateTime expires, UserDto dto)> RegisterAsync(RegisterDto dto);
+        Task<(string token, DateTime expires, UserDto dto)> LoginAsync(LoginDto dto);
+        (string token, DateTime expires) RefreshTokenAsync(ApplicationUser user);
+        Task<string> ForgotPasswordAsync(ForgotPasswordDto dto);
+        Task<string> ResetPasswordAsync(ResetPasswordDto dto);
         Task LogoutAsync();
     }
 }

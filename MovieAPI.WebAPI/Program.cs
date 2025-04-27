@@ -6,6 +6,7 @@ using MovieAPI.WebAPI.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using MovieAPI.WebAPI.Extensions;
 
 namespace MovieAPI.WebAPI {
     public class Program {
@@ -16,8 +17,7 @@ namespace MovieAPI.WebAPI {
             builder.Services.AddApplicationServiceRegistration(builder.Configuration);
             builder.Services.AddInfrastructureServiceRegistration(builder.Configuration);
 
-            builder.Services.AddAuthentication(options =>
-            {
+            builder.Services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
@@ -43,27 +43,22 @@ namespace MovieAPI.WebAPI {
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(c => {
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo {
-                    Title = "MovieAPI.WebAPI",
-                    Version = "v1",
-                    Description = "API for managing movies"
-                });
-            });
+            builder.Services.AddSwagger();
 
             var app = builder.Build();
-            app.UseRouting();
-            app.UseMiddleware<ErrorHandler>();
 
             //AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Continue;
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment()) {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseDeveloperExceptionPage();
+                app.UseSwaggerExtension();
             }
 
+            app.UseStaticFiles();
+            app.UseRouting();
+            app.UseMiddleware<ErrorHandler>();
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();

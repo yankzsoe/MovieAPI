@@ -24,10 +24,8 @@ namespace MovieAPI.Application.Features.Movie.Commands.Create {
 
         public async Task<int> Handle(MovieCreateCommand request, CancellationToken cancellationToken) {
             var validator = new MovieCreateValidator();
-            var validationResult = await validator.ValidateAsync(request.MovieDto, cancellationToken);
-            if (!validationResult.IsValid) {
-                throw new ValidationException(validationResult.Errors);
-            }
+            await validator.ValidateRequest(request.MovieDto);
+
             var movie = _mapper.Map<Domain.Entities.Movie>(request.MovieDto);
             await _unitOfWork.Movie.AddAsync(movie);
             await _unitOfWork.CompleteAsync();
