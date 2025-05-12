@@ -10,11 +10,14 @@ using FluentValidation.AspNetCore;
 using MovieAPI.Application.Features.Movie.Commands.Create;
 using Microsoft.AspNetCore.Mvc;
 using MovieAPI.Application.Common.Models.Configuration;
+using MovieAPI.Application.Common;
 
 namespace MovieAPI.Application {
     public static class ServiceExtension {
         public static void AddApplicationServiceRegistration(this IServiceCollection services, IConfiguration configuration) {
             services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+
+            services.AddAuthorizationPolicies();
 
             // Add FluentValidation
             //services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());

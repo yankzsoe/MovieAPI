@@ -11,6 +11,7 @@ using MovieAPI.Domain.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace MovieAPI.Application.Services {
     public class AuthService : IAuthService {
@@ -38,7 +39,7 @@ namespace MovieAPI.Application.Services {
                 throw new ValidationException(result.Errors);
             }
 
-            var token = GenerateJwtToken(user);
+            var token = await GenerateJwtToken(user);
             var userDto = _mapper.Map<UserDto>(user);
             return (token.token, token.expires, userDto);
         }
@@ -51,8 +52,11 @@ namespace MovieAPI.Application.Services {
             if (!result.Succeeded)
                 throw new ValidationException("Invalid email or password");
 
-            var token = GenerateJwtToken(user);
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var token = await GenerateJwtToken(user);
             var userDto = _mapper.Map<UserDto>(user);
+            userDto.Roles.AddRange(roles);
             return (token.token, token.expires, userDto);
         }
 
@@ -60,8 +64,8 @@ namespace MovieAPI.Application.Services {
             await _signInManager.SignOutAsync();
         }
 
-        public (string token, DateTime expires) RefreshTokenAsync(ApplicationUser user) {
-            var token = GenerateJwtToken(user);
+        public async Task<(string token, DateTime expires)> RefreshTokenAsync(ApplicationUser user) {
+            var token = await GenerateJwtToken(user);
             return (token.token, token.expires);
         }
 
@@ -108,14 +112,22 @@ namespace MovieAPI.Application.Services {
             return "Reset password successfully. You can now login with your new password.";
         }
 
-        private (string token, DateTime expires) GenerateJwtToken(ApplicationUser user) {
-            var claims = new[]
+        private async Task<(string token, DateTime expires)> GenerateJwtToken(ApplicationUser user) {
+            var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Email, user.Email)
             };
+
+            var roles = await _userManager.GetRolesAsync(user);
+            foreach (var role in roles) {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            claims.AddRange(userClaims);
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
